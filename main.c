@@ -18,6 +18,14 @@ enum KEY_CODES {
   ESC = 27
 };
 
+const struct command commands[END_OF_FILE] = {
+    { FORWARD_CHAR, "Move forward one character", &com_forward_char },
+    { BACKWARD_CHAR, "Move backward one character", &com_backward_char },
+    { FORWARD_WORD, "Move forward one word", &com_forward_word },
+    { BACKWARD_WORD, "Move backward one word", &com_backward_word },
+    { PREVIOUS_LINE, "Move to the previous line", &com_previous_line },
+    { NEXT_LINE, "Move to the next line", &com_next_line }
+};
 
 /* save the termios settings and restore at exit */
 static struct termios termios_prev;

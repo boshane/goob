@@ -188,3 +188,9 @@ make_node(node* parent, node** cur, const char* string, int l, int r) {
   }
 }
 
+void com_forward_char() {}
+void com_backward_char() {}
+void com_forward_word() {}
+void com_backward_word() {}
+void com_previous_line() {}
+void com_next_line() {}

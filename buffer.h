@@ -15,12 +15,21 @@
 enum cursor_movement {
     FORWARD_CHAR,
     BACKWARD_CHAR,
-    FORWARD_LINE,
-    BACKWARD_LINE,
+    FORWARD_WORD,
+    BACKWARD_WORD,
+    PREVIOUS_LINE,
+    NEXT_LINE,
     END_OF_FILE
 };
 
 typedef enum cursor_movement cursor_movement_t;
+typedef void(*oper)(void);
+
+struct command {
+    cursor_movement_t com;
+    const char* desc;
+    oper execute;
+};
 
 typedef struct node 
 {
@@ -58,5 +67,11 @@ void buffer_destroy();
 cursor_movement_t cursor_char_forward();
 node* get_first_leaf(node* node);
 node* get_last_leaf(node* node);
+void com_forward_char();
+void com_backward_char();
+void com_forward_word();
+void com_backward_word();
+void com_previous_line();
+void com_next_line();
 
 #endif
