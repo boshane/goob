@@ -32,7 +32,7 @@ enum KEYCOMMANDS {
 
 void forward_char(int* cur); 
 void backward_char(); 
-void forward_word(int *col);
+void forward_word(int *row, int *col);
 void backward_word();
 void next_line(); 
 void previous_line(); 

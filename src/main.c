@@ -67,7 +67,7 @@ main(int argc, char **argv)
 				running = 0;
 				break;
 			case 'f':
-				forward_word(&ed.cj);
+				forward_word(&ed.ci, &ed.cj);
 				break;
 			case 'b':
 				break;

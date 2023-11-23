@@ -20,8 +20,9 @@ backward_char(int *col)
 	return;
 }
 
+/* Advance forward one 'word' delimited by a space */
 void
-forward_word(int *col)
+forward_word(int *row, int *col)
 {
 	node *src, *cur;
 	int offset, total, ropelen;
@@ -44,9 +45,20 @@ forward_word(int *col)
 			offset++;
 		} while(offset < cur->len);
 
+		if ((*col + total) >= ropelen) {
+			*col = ropelen;
+			return;
+		}
 		cur = get_next_leaf(cur, NULL);
 		offset = 0;
 	}
+	if ((*col + total) >= ropelen) {
+		*buf->current_line = *buf->current_line->next;
+		*col = 0;
+		++*row;
+		return;
+	}
+
 	*col += total;
 }
 
