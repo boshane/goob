@@ -1,16 +1,11 @@
 #include "../soap/buffer.h"
 #include "util.h"
-
-#define NODE_H 1
-#define NODE_W 3
-#define SPACING 5
-#define CORNER '.'
-#define VERTICAL '|'
-#define HORIZONTAL '-'
+#include "term.h"
 
 typedef struct position {
 	int x, y;
 } position;
+
 
 void
 draw_box(char **output, node *cur, position pos)

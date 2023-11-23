@@ -111,6 +111,7 @@ buffer_append_string(buffer **buf, char *string)
 void
 buffer_init(buffer **buf, char *str)
 {
+	*buf = malloc(sizeof(struct buffer));
 	(*buf)->firstline = NULL;
 	(*buf)->filename = str;
 	open_file(str, buf);
@@ -136,20 +137,22 @@ rope_length(node *root)
 int
 leaf_of_nthchar(node *root, int n, node** dest)
 {
-	if (root->left == NULL && root->right == NULL) {
-		if (n > root->len) {
-			*dest = NULL;
-			return -1;
+	while((root->left != NULL) && (root->right != NULL)) {
+		int nodelen = root->len;
+		if ((n - nodelen) < 0) {
+			root = root->left;
 		} else {
-			*dest = root;
-			return root->len - n;
+			root = root->right;
+			n = n - nodelen;
 		}
 	}
-	if ((n - root->len) < 1) {
-		leaf_of_nthchar(root->left, n, dest);
-	} else
-		leaf_of_nthchar(root->right, n - root->len, dest);
-	return -1;
+	if (n > MAX_LEN) {
+		dest = NULL;
+		return -1;
+	} else {
+		*dest = root;
+		return n;
+	}
 }
 
 void

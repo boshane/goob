@@ -1,6 +1,6 @@
 CC = clang
 CFLAGS=-Wall -g -O0 -Wextra -Werror
-OBJS = main.o util.o ./soap/buffer.o ./soap/command.o
+OBJS = main.o util.o term.o ./soap/buffer.o ./soap/command.o
 VPATH = src:include:soap
 
 .PHONY: all clean
