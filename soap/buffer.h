@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <termios.h>
@@ -27,14 +28,14 @@ typedef struct node {
 	struct node *right;
 	struct node *par;
 	char *str;
-	int len;
+	uint8_t len;
 } node;
 
 typedef struct line {
 	struct node **root;
 	struct line *next;
-	int leafcol;
-	int linecol;
+	uint8_t leafcol;
+	uint16_t linecol;
 } line;
 
 typedef struct buffer {
@@ -42,23 +43,25 @@ typedef struct buffer {
 	struct node *current_leaf;
 	struct line *current_line;
     char* filename;
-	int length;
+    uint8_t pnth;
+    char pending[256];
+	uint16_t length;
+    uint16_t tcol; /* target column */
 	bool dirty;
 } buffer;
 
 void rope_destroy(node *rope);
-void rope_print(node *rope);
 void buffer_destroy(buffer **buf);
-void buffer_display(buffer **buf);
 void buffer_append_string(buffer **buf, char *string);
 void buffer_init(buffer **buf, char *str);
 int leaf_of_nthchar(node *root, int n, node** dest);
 void get_nth_char(node *root, int n, char **c);
 int rope_length(node *root);
 node * get_first_leaf(node *n);
-node * get_next_leaf(node *cur, node *prev);
+node * get_next_leaf(node *cur);
 void get_last_leaf(node *root, node **last);
 node * get_root_node(node *leaf);
 void make_node(node *parent, node **cur, const char *string, int l, int r);
+
 
 #endif

@@ -1,7 +1,5 @@
 #include "buffer.h"
 
-const char *rootstring = "";
-
 typedef enum {
         LF = 0x0D,
         CR = 0x0A
@@ -46,17 +44,6 @@ rope_destroy(node *rope)
 }
 
 void
-rope_print(node *rope)
-{
-	if (rope->left && rope->right) {
-		rope_print(rope->left);
-		rope_print(rope->right);
-	} else {
-		printf("%s", rope->str);
-	}
-}
-
-void
 buffer_destroy(buffer **buf)
 {
 	line *tmp = (*buf)->firstline;
@@ -68,20 +55,6 @@ buffer_destroy(buffer **buf)
 		tmp = tmp->next;
 		free(prev);
 	}
-}
-
-void
-buffer_display(buffer **buf)
-{
-	line *current_line = (*buf)->firstline;
-	printf("\x1b[1;1H");
-
-	while (current_line != NULL) {
-		rope_print(*current_line->root);
-		printf("\x1b[E");
-		current_line = current_line->next;
-	}
-	printf("\x1b[1;1H");
 }
 
 void
@@ -97,8 +70,8 @@ buffer_append_string(buffer **buf, char *string)
 
 	make_node(NULL, newline->root, string, 0, length);
 
-	/* if there is a first line, iterate through the lines to get to the last one
-	 * otherwise, make the new line the first line                                */
+	/* if there is a first line, iterate through the lines to get to the
+	 * last one otherwise, make the new line the first line */
 	if (tmp) {
 		while (tmp->next != NULL) {
 			tmp = tmp->next;
@@ -116,12 +89,14 @@ buffer_init(buffer **buf, char *str)
 	(*buf)->filename = str;
 	open_file(str, buf);
 	(*buf)->current_line = (*buf)->firstline;
+	(*buf)->pnth = 0;
+	(*buf)->pending[0] = '\0';
 }
 
 int
 rope_length(node *root)
 {
-	node* tmp = root;
+	node *tmp = root;
 	int length = tmp->len;
 
 	while (tmp->right != NULL) {
@@ -135,9 +110,9 @@ rope_length(node *root)
  * and return the remaining number of characters before the end of the leaf
  * is reached. */
 int
-leaf_of_nthchar(node *root, int n, node** dest)
+leaf_of_nthchar(node *root, int n, node **dest)
 {
-	while((root->left != NULL) && (root->right != NULL)) {
+	while ((root->left != NULL) && (root->right != NULL)) {
 		int nodelen = root->len;
 		if ((n - nodelen) < 0) {
 			root = root->left;
@@ -175,13 +150,16 @@ get_nth_char(node *root, int n, char **c)
 }
 
 node *
-get_next_leaf(node *cur, node *prev)
+get_next_leaf(node *cur)
 {
+	node *prev = NULL;
+
 	do {
-		prev = cur;
-		cur = cur->par;
-	}
-	while(cur->right == prev);
+		if (cur->par) {
+			prev = cur;
+			cur = cur->par;
+		} else return NULL;
+	} while (cur->right == prev);
 
 	return get_first_leaf(cur->right);
 }

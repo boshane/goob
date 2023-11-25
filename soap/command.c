@@ -4,11 +4,18 @@
 extern buffer* buf;
 
 void
-forward_char(int *col)
+forward_char(int *row, int *col)
 {
 	int ropelen = rope_length(*buf->current_line->root);
 	if (*col < ropelen)
 		++*col;
+	if (*col == ropelen) {
+		if (buf->current_line->next) {
+			*buf->current_line = *buf->current_line->next;
+			*col = 0;
+			++*row;
+		}
+	}
 	return;
 }
 
@@ -49,10 +56,11 @@ forward_word(int *row, int *col)
 			*col = ropelen;
 			return;
 		}
-		cur = get_next_leaf(cur, NULL);
+		cur = get_next_leaf(cur);
 		offset = 0;
 	}
-	if ((*col + total) >= ropelen) {
+	/* Are we at the end of the buffer? */
+	if ((*col + total) >= ropelen && buf->current_line->next) {
 		*buf->current_line = *buf->current_line->next;
 		*col = 0;
 		++*row;

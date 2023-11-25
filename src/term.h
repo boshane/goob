@@ -19,6 +19,25 @@ enum TERM_KEYS {
 	ESC = 27
 };
 
+enum CHARSET {
+	NUL,
+	SOH,
+	STX,
+	ETX,
+	EOT,
+	ENQ,
+	ACK,
+	BEL,
+	BS,
+	HT,
+	LF,
+	VT,
+	FF,
+	CR,
+	SO,
+	SI
+};
+
 void term_init();
 int get_cursor_position(int fdi, int fdo, int *row, int *col);
 

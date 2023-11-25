@@ -16,6 +16,47 @@ struct termios tios_prev;
 struct termios tios_new;
 struct winsize term_size;
 buffer *buf;
+editor ed;
+
+void
+rope_print(node *rope)
+{
+	uint16_t total = 0;
+	char linebuf[256] = { '\0' };
+	int bufn = 0;
+	node *cur = get_first_leaf(rope);
+
+	while (cur) {
+		for (int n = 0; n < cur->len; n++) {
+			if (buf->pnth > 0 && total == ed.cj) {
+				for (int i = 0; i < buf->pnth; i++) {
+					linebuf[bufn++] = buf->pending[i];
+				}
+			}
+			linebuf[bufn++] = cur->str[n];
+			total++;
+		}
+		cur = get_next_leaf(cur);
+	}
+
+	for (int n = 0; n < bufn; n++) {
+		putchar(linebuf[n]);
+	}
+}
+
+void
+buffer_display()
+{
+	line *current_line = buf->firstline;
+	printf("\x1b[1;1H");
+
+	while (current_line != NULL) {
+		rope_print(*current_line->root);
+		printf("\x1b[E");
+		current_line = current_line->next;
+	}
+	printf("\x1b[1;1H");
+}
 
 void
 menubar_display(int crow, int ccol)
@@ -42,12 +83,13 @@ main(int argc, char **argv)
 	(void)argc;
 	(void)argv;
 
-	editor ed = { .ci=0, .cj=0 };
+	ed.ci=0;
+	ed.cj=0;
 
 	term_init();
 	buffer_init(&buf, argv[1]);
 	CLEAR_SCREEN();
-	buffer_display(&buf);
+	buffer_display();
 	fflush(stdout);
 	//pretty_print_rope(*buf->firstline->root);
 	char c, seq[3];
@@ -75,7 +117,7 @@ main(int argc, char **argv)
 		} else {
 			switch (c) {
 			case CTRL_F:
-				forward_char(&ed.cj);
+				forward_char(&ed.ci, &ed.cj);
 				break;
 			case CTRL_B:
 				backward_char(&ed.cj);
@@ -83,11 +125,17 @@ main(int argc, char **argv)
 			case CTRL_N:
 				next_line(&ed.cj);
 			default:
+			{
+				buf->pending[buf->pnth++] = c;
+				CURSOR_ROW_COL(ed.ci+1, 1);
+				rope_print(*buf->current_line->root);
+				ed.cj++;
 				break;
+			}
 			}
 		}
 		menubar_display(ed.ci+1, ed.cj+1);
-		CURSOR_ROW_COL(ed.ci+1, ed.cj+1);
+		CURSOR_ROW_COL(ed.ci+1, ed.cj+1+buf->pnth);
 		fflush(stdout);
 
 	}
